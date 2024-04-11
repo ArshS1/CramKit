@@ -5,7 +5,7 @@ import { prisma } from "@/lib/db";
 export default function Home() {
 
   return (
-    <Button>Click me</Button>
+    <Button>Home Page</Button>
   )
 
 }
