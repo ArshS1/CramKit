@@ -21,6 +21,7 @@ import {
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { BookOpen, CopyCheck } from "lucide-react";
+import { Separator } from "./ui/separator";
 
 type Props = {};
 
@@ -92,6 +93,7 @@ const QuizCreation = (props: Props) => {
                   <CopyCheck className="w-4 h-4 mr-2" />
                   Multiple Choice
                 </Button>
+                <Separator orientation="vertical" />
                 <Button >
                   <BookOpen className="w-4 h-4 mr-2" />
                   Open Ended
