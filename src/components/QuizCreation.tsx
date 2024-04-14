@@ -10,6 +10,17 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { quizSchema } from "@/schemas/form/quiz";
 import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+} from "./ui/form";
+import { Input } from "./ui/input";
+import { Button } from "./ui/button";
+import { BookOpen, CopyCheck } from "lucide-react";
 
 type Props = {};
 
@@ -25,6 +36,10 @@ const QuizCreation = (props: Props) => {
     },
   });
 
+  function onSubmit(input: Input) {
+    alert(JSON.stringify(input, null, 2));
+  }
+
   return (
     <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
       <Card>
@@ -32,7 +47,59 @@ const QuizCreation = (props: Props) => {
           <CardTitle className="text-2xl font-bold">Create a Quiz</CardTitle>
           <CardDescription>Choose a Topic!</CardDescription>
         </CardHeader>
-        <CardContent></CardContent>
+        <CardContent>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+              <FormField
+                control={form.control}
+                name="topic"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Username</FormLabel>F
+                    <FormControl>
+                      <Input placeholder="Enter a topic..." {...field} />
+                    </FormControl>
+                    <FormDescription>
+                      This will be the topic of your quiz
+                    </FormDescription>
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="amount"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Number of Questions</FormLabel>F
+                    <FormControl>
+                      <Input
+                        placeholder="Enter an amount..."
+                        {...field}
+                        type="number"
+                        min={1}
+                        max={10}
+                        onChange={(e) => {
+                          form.setValue("amount", parseInt(e.target.value));
+                        }}
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+
+              <div className="flex justify-between">
+                <Button>
+                  <CopyCheck className="w-4 h-4 mr-2" />
+                  Multiple Choice
+                </Button>
+                <Button >
+                  <BookOpen className="w-4 h-4 mr-2" />
+                  Open Ended
+                </Button>
+              </div>
+            </form>
+          </Form>
+        </CardContent>
       </Card>
     </div>
   );
