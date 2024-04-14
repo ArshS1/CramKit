@@ -41,6 +41,8 @@ const QuizCreation = (props: Props) => {
     alert(JSON.stringify(input, null, 2));
   }
 
+  form.watch();
+
   return (
     <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
       <Card>
@@ -89,16 +91,39 @@ const QuizCreation = (props: Props) => {
               />
 
               <div className="flex justify-between">
-                <Button>
+                <Button
+                  type="button"
+                  onClick={() => {
+                    form.setValue("type", "multipleChoice");
+                  }}
+                  className="w-1/2 rounded-none rounded-l-lg"
+                  variant={
+                    form.getValues("type") === "multipleChoice"
+                      ? "default"
+                      : "secondary"
+                  }
+                >
                   <CopyCheck className="w-4 h-4 mr-2" />
                   Multiple Choice
                 </Button>
                 <Separator orientation="vertical" />
-                <Button >
+                <Button
+                  type="button"
+                  onClick={() => {
+                    form.setValue("type", "openEnded");
+                  }}
+                  className="w-1/2 rounded-none rounded-r-lg"
+                  variant={
+                    form.getValues("type") === "openEnded"
+                      ? "default"
+                      : "secondary"
+                  }
+                >
                   <BookOpen className="w-4 h-4 mr-2" />
                   Open Ended
                 </Button>
               </div>
+              <Button type="submit">Create Quiz</Button>
             </form>
           </Form>
         </CardContent>
