@@ -3,6 +3,7 @@ import { OpenAI } from "openai";
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
+
  
 interface OutputFormat {
   [key: string]: string | string[] | OutputFormat;
@@ -29,6 +30,7 @@ export async function strict_output(
   // start off with no error message
   let error_msg: string = "";
  
+
   for (let i = 0; i < num_tries; i++) {
     let output_format_prompt: string = `\nYou are to output ${
       list_output && "an array of objects in"
