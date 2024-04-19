@@ -68,7 +68,7 @@ const QuizCreation = (props: Props) => {
           if (form.getValues("type") === "openEnded") {
             router.push(`/play/open-ended/${gameId}`);
           } else {
-            router.push(`/play/mcq/${gameId}`);
+            router.push(`/play/multipleChoice/${gameId}`);
           }
         },
       }
@@ -157,7 +157,7 @@ const QuizCreation = (props: Props) => {
                   Open Ended
                 </Button>
               </div>
-              <Button type="submit">Create Quiz</Button>
+              <Button disabled={isPending} type="submit">Create Quiz</Button>
             </form>
           </Form>
         </CardContent>

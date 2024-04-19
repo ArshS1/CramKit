@@ -9,9 +9,9 @@ export const POST = async (req: Request, res: Response) => {
   try {
     const session = await getAuthSession();
 
-    if (!session?.user) {
-      return NextResponse.json({ message: "Unauthorized | You must be logged in to create a quiz" }, { status: 401 });
-    }
+    // if (!session?.user) {
+    //   return NextResponse.json({ message: "Unauthorized | You must be logged in to create a quiz" }, { status: 401 });
+    // }
 
     const body = await req.json();
 
