@@ -1,7 +1,10 @@
+"use client";
+
 import { Game, Question } from "@prisma/client";
-import { Timer } from "lucide-react";
+import { ChevronRight, Timer } from "lucide-react";
 import React from "react";
 import { Card, CardDescription, CardHeader, CardTitle } from "./ui/card";
+import { Button } from "./ui/button";
 
 type Props = {
   game: Game & { questions: Pick<Question, "id" | "options" | "question">[] };
@@ -9,6 +12,7 @@ type Props = {
 
 const MultipleChoice = ({ game }: Props) => {
   const [questionIndex, setQuestionIndex] = React.useState(0);
+  const [selectedChoice, setSelectedChoice] = React.useState<number>(0);
 
   const currentQuestion = React.useMemo(() => {
     return game.questions[questionIndex];
@@ -29,7 +33,7 @@ const MultipleChoice = ({ game }: Props) => {
       <div className="flex flex-row justify-between ">
         {/* topic */}
         <p>
-          <span className="text-slate-400">Topic </span>
+          <span className="text-slate-400 mr-2">Topic</span>
           <span className="px-2 py-2 text-white rounded-lg bg-slate-800">
             {game.topic}
           </span>
@@ -46,19 +50,41 @@ const MultipleChoice = ({ game }: Props) => {
       <Card className="w-full mt-4">
         <CardHeader className="flex flex-col items-center">
           <CardTitle className="mr-5 text-center divide-y divide-zinc-400">
-            <div className="">1</div>
+            <div className="">{questionIndex + 1}</div>
             <div className="text-base text-slate-400">
               {game.questions.length}
             </div>
           </CardTitle>
 
           <CardDescription className="flex-grow text-lg">
-            First question
+            {currentQuestion.question}
           </CardDescription>
         </CardHeader>
       </Card>
 
-      <div className="flex flex-col items-center justify-center w-full mt-4"></div>
+      <div className="flex flex-col items-center justify-center w-full mt-4">
+        {options.map((option, index) => {
+          return (
+            <Button
+              key={index}
+              className="justify-start w-full py-8 mb-4"
+              variant={selectedChoice === index ? "default" : "secondary"}
+              onClick={() => setSelectedChoice(index)}
+            >
+              <div className="flex items-center justify-start">
+                <div className="p-2 px-3 mr-5 border rounded-md">
+                  {index + 1}
+                </div>
+                <div className="text-start">{option}</div>
+              </div>
+            </Button>
+          );
+        })}
+
+        <Button className="mt-2">
+          Next <ChevronRight className="w-4 h-4 ml-2" />
+        </Button>
+      </div>
     </div>
   );
 };
