@@ -1,3 +1,4 @@
+import MultipleChoice from "@/components/MultipleChoice";
 import { prisma } from "@/lib/db";
 import { getAuthSession } from "@/lib/nextauth";
 import { redirect } from "next/navigation";
@@ -35,7 +36,13 @@ const MultipleChoicePage = async ({ params: { gameId } }: Props) => {
     return redirect("/quiz");
   }
 
-  return <div>{}</div>;
+  // Map Questions to questions
+  const gameWithQuestions = {
+    ...game,
+    questions: game.Questions,
+  };
+
+  return <MultipleChoice game={gameWithQuestions} />;
 };
 
 export default MultipleChoicePage;
