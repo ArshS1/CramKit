@@ -66,7 +66,7 @@ model Game {
   timeEnded DateTime?
   gameType  GameType
   user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
-  Questions Question[]
+  questions Question[]
 
   @@index([userId], name: "userId_game")
 }
