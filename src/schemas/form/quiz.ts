@@ -7,3 +7,8 @@ export const quizSchema = z.object({
   type: z.enum(["multipleChoice", "openEnded"]),
   amount: z.number().int().min(1).max(10),
 });
+
+export const checkAnswerSchema = z.object({
+  questionId: z.string(),
+  userAnswer: z.string(),
+});
