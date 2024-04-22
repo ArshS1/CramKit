@@ -6,6 +6,10 @@ import React from "react";
 import { Card, CardDescription, CardHeader, CardTitle } from "./ui/card";
 import { Button } from "./ui/button";
 import MultipleChoiceCounter from "./MultipleChoiceCounter";
+import { useMutation } from "@tanstack/react-query";
+import axios from "axios";
+import { z } from "zod";
+import { checkAnswerSchema } from "@/schemas/form/quiz";
 
 type Props = {
   game: Game & { questions: Pick<Question, "id" | "options" | "question">[] };
@@ -14,6 +18,31 @@ type Props = {
 const MultipleChoice = ({ game }: Props) => {
   const [questionIndex, setQuestionIndex] = React.useState(0);
   const [selectedChoice, setSelectedChoice] = React.useState<number>(0);
+  const [correctAnswers, setCorrectAnswers] = React.useState<number>(0);
+  const [incorrectAnswers, setIncorrectAnswers] = React.useState<number>(0);
+
+  const { mutate: checkAnswer, isPending: isChecking } = useMutation({
+    mutationFn: async () => {
+      const payload: z.infer<typeof checkAnswerSchema> = {
+        questionId: currentQuestion.id,
+        userAnswer: options[selectedChoice],
+      };
+      const response = await axios.post("/api/checkAnswer", payload);
+      return response.data;
+    },
+  });
+
+  const handleNext = React.useCallback(() => {
+    checkAnswer(undefined, {
+      onSuccess: ({ isCorrect }) => {
+        if (isCorrect) {
+          setCorrectAnswers((prev) => prev + 1);
+        } else {
+          setIncorrectAnswers((prev) => prev + 1);
+        }
+      },
+    });
+  }, []);
 
   const currentQuestion = React.useMemo(() => {
     return game.questions[questionIndex];
