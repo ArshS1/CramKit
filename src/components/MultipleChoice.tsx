@@ -1,15 +1,18 @@
 "use client";
 
 import { Game, Question } from "@prisma/client";
-import { ChevronRight, Timer } from "lucide-react";
+import { BarChart, ChevronRight, Loader2, Timer } from "lucide-react";
 import React from "react";
 import { Card, CardDescription, CardHeader, CardTitle } from "./ui/card";
-import { Button } from "./ui/button";
+import { Button, buttonVariants } from "./ui/button";
 import MultipleChoiceCounter from "./MultipleChoiceCounter";
 import { useMutation } from "@tanstack/react-query";
 import axios from "axios";
 import { z } from "zod";
 import { checkAnswerSchema } from "@/schemas/form/quiz";
+import { useToast } from "./ui/use-toast";
+import { cn } from "@/lib/utils";
+import Link from "next/link";
 
 type Props = {
   game: Game & { questions: Pick<Question, "id" | "options" | "question">[] };
@@ -20,6 +23,9 @@ const MultipleChoice = ({ game }: Props) => {
   const [selectedChoice, setSelectedChoice] = React.useState<number>(0);
   const [correctAnswers, setCorrectAnswers] = React.useState<number>(0);
   const [incorrectAnswers, setIncorrectAnswers] = React.useState<number>(0);
+  const [hasEnded, setHasEnded] = React.useState<boolean>(false);
+
+  const { toast } = useToast();
 
   const { mutate: checkAnswer, isPending: isChecking } = useMutation({
     mutationFn: async () => {
@@ -33,16 +39,57 @@ const MultipleChoice = ({ game }: Props) => {
   });
 
   const handleNext = React.useCallback(() => {
+    if (isChecking) {
+      return;
+    }
+
     checkAnswer(undefined, {
       onSuccess: ({ isCorrect }) => {
         if (isCorrect) {
           setCorrectAnswers((prev) => prev + 1);
+          toast({
+            title: "Correct Answer",
+            description: "You got it right!",
+            color: "green",
+          });
         } else {
           setIncorrectAnswers((prev) => prev + 1);
+          toast({
+            title: "Incorrect Answer",
+            description: "You got it wrong!",
+            color: "red",
+          });
         }
+        if (questionIndex === game.questions.length - 1) {
+          setHasEnded(true);
+          return;
+        }
+        setQuestionIndex((prev) => prev + 1);
       },
     });
-  }, []);
+  }, [checkAnswer, toast, isChecking, questionIndex, game.questions.length]);
+
+  React.useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "1") {
+          setSelectedChoice(0);
+        } else if (e.key === "2") {
+          setSelectedChoice(1);
+        } else if (e.key === "3") {
+          setSelectedChoice(2);
+        } else if (e.key === "4") {
+          setSelectedChoice(3);
+        } else if (e.key === "Enter") {
+          handleNext();
+        }
+      });
+    };
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("keydown", () => {});
+    };
+  }, [handleNext]);
 
   const currentQuestion = React.useMemo(() => {
     return game.questions[questionIndex];
@@ -57,6 +104,23 @@ const MultipleChoice = ({ game }: Props) => {
     }
     return JSON.parse(currentQuestion.options as string) as string[];
   }, [currentQuestion]);
+
+  if (hasEnded) {
+    return (
+      <div className="absolute flex flex-col justify-center top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 ">
+        <div className="px-4 mt-2 font-semibold text-white bg-green-500 rounded-md whitespace-nowrap">
+          Quiz Has been Completed! {"3m 4s"}
+        </div>
+        <Link
+          href={`/statistics/${game.id}`}
+          className={cn(buttonVariants(), "mt-2")}
+        >
+          View Statistics
+          <BarChart className="w-4 h-4 ml-2" />
+        </Link>
+      </div>
+    );
+  }
 
   return (
     <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 md:w-[80vw] max-4-xl w-[90vw]">
@@ -75,7 +139,10 @@ const MultipleChoice = ({ game }: Props) => {
             <span>00:00</span>
           </div>
 
-          <MultipleChoiceCounter correctAnswers={3} incorrectAnswers={4} />
+          <MultipleChoiceCounter
+            correctAnswers={correctAnswers}
+            incorrectAnswers={incorrectAnswers}
+          />
         </div>
       </div>
       <Card className="w-full mt-4">
@@ -112,7 +179,14 @@ const MultipleChoice = ({ game }: Props) => {
           );
         })}
 
-        <Button className="mt-2">
+        <Button
+          className="mt-2"
+          onClick={() => {
+            handleNext();
+          }}
+          disabled={isChecking}
+        >
+          {isChecking && <Loader2 className="w-4 h-4 mr-2 animated-spin" />}
           Next <ChevronRight className="w-4 h-4 ml-2" />
         </Button>
       </div>
