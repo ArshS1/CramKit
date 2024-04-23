@@ -11,8 +11,9 @@ import axios from "axios";
 import { z } from "zod";
 import { checkAnswerSchema } from "@/schemas/form/quiz";
 import { useToast } from "./ui/use-toast";
-import { cn } from "@/lib/utils";
+import { cn, formatTimeDelta } from "@/lib/utils";
 import Link from "next/link";
+import { differenceInSeconds } from "date-fns";
 
 type Props = {
   game: Game & { questions: Pick<Question, "id" | "options" | "question">[] };
@@ -24,8 +25,17 @@ const MultipleChoice = ({ game }: Props) => {
   const [correctAnswers, setCorrectAnswers] = React.useState<number>(0);
   const [incorrectAnswers, setIncorrectAnswers] = React.useState<number>(0);
   const [hasEnded, setHasEnded] = React.useState<boolean>(false);
-
+  const [now, setNow] = React.useState<Date>(new Date());
   const { toast } = useToast();
+
+  React.useEffect(() => {
+    const interval = setInterval(() => {
+      if (!hasEnded) {
+        setNow(new Date());
+      }
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [hasEnded]);
 
   const { mutate: checkAnswer, isPending: isChecking } = useMutation({
     mutationFn: async () => {
@@ -109,7 +119,7 @@ const MultipleChoice = ({ game }: Props) => {
     return (
       <div className="absolute flex flex-col justify-center top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 ">
         <div className="px-4 mt-2 font-semibold text-white bg-green-500 rounded-md whitespace-nowrap">
-          Quiz Has been Completed! {"3m 4s"}
+          Quiz Has been Completed! {formatTimeDelta(differenceInSeconds(now, game.timeStart))}
         </div>
         <Link
           href={`/statistics/${game.id}`}
@@ -136,7 +146,9 @@ const MultipleChoice = ({ game }: Props) => {
 
           <div className="flex self-start mt-3 text-slate-400">
             <Timer className="mr-2" />
-            <span>00:00</span>
+            <span>
+              {formatTimeDelta(differenceInSeconds(now, game.timeStart))}
+            </span>
           </div>
 
           <MultipleChoiceCounter
