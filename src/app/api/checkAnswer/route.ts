@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/db";
 import { checkAnswerSchema } from "@/schemas/form/quiz";
 import { NextResponse } from "next/server";
+import { compareTwoStrings } from "string-similarity";
 import { ZodError } from "zod";
 
 export async function POST(req: Request, res: Response) {
@@ -52,6 +53,30 @@ export async function POST(req: Request, res: Response) {
         },
         { status: 200 }
       );
+      
+    }
+    else if (question.questionType === "openEnded") {
+      let percentageSimilarity = compareTwoStrings(
+        question.answer.toLowerCase().trim(),
+        userAnswer.toLowerCase().trim()
+      );
+      percentageSimilarity = Math.round(percentageSimilarity * 100);
+
+      await prisma.question.update({
+        where: {
+          id: questionId,
+        },
+        data: {
+          percentageCorrect: percentageSimilarity,
+        },
+      });
+      return NextResponse.json(
+        {
+          percentageCorrect: percentageSimilarity,
+        },
+        { status: 200 }
+      );
+      
     }
   } catch (error) {
     if (error instanceof ZodError) {
