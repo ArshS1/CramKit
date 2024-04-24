@@ -22,7 +22,7 @@ const MultipleChoicePage = async ({ params: { gameId } }: Props) => {
       id: gameId,
     },
     include: {
-      Questions: {
+      questions: {
         select: {
           id: true,
           question: true,
@@ -39,7 +39,7 @@ const MultipleChoicePage = async ({ params: { gameId } }: Props) => {
   // Map Questions to questions
   const gameWithQuestions = {
     ...game,
-    questions: game.Questions,
+    questions: game.questions,
   };
 
   return <MultipleChoice game={gameWithQuestions} />;
