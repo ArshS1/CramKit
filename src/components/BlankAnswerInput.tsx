@@ -32,11 +32,13 @@ const BlankAnswerInput = ({ answer }: Props) => {
         {insertBlanks.split(BLANKS).map((word, index) => (
           <>
             {word}
-            <input
-              type="text"
-              id="user-blank-input"
-              className="text-center border-b-2 border-black dark:border-white w-28 focus:border-b-4 focus:outline-none "
-            />
+            {index < insertBlanks.split(BLANKS).length - 1 && (
+              <input
+                type="text"
+                id="user-blank-input"
+                className="text-center border-b-2 border-black dark:border-white w-28 focus:border-b-4 focus:outline-none "
+              />
+            )}
           </>
         ))}
       </h1>
