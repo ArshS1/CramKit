@@ -1,18 +1,19 @@
 "use client";
 
-import { formatTimeDelta } from "@/lib/utils";
+import { cn, formatTimeDelta } from "@/lib/utils";
 import { Game, Question } from "@prisma/client";
 import { differenceInSeconds } from "date-fns";
-import { ChevronRight, Loader2, Timer } from "lucide-react";
+import { BarChart, ChevronRight, Loader2, Timer } from "lucide-react";
 import React from "react";
 import { Card, CardDescription, CardHeader, CardTitle } from "./ui/card";
-import { Button } from "./ui/button";
+import { Button, buttonVariants } from "./ui/button";
 import { useToast } from "./ui/use-toast";
 import { useMutation } from "@tanstack/react-query";
 import { checkAnswerSchema } from "@/schemas/form/quiz";
 import { z } from "zod";
 import axios from "axios";
 import BlankAnswerInput from "./BlankAnswerInput";
+import Link from "next/link";
 
 type Props = {
   game: Game & { questions: Pick<Question, "id" | "question" | "answer">[] };
@@ -22,6 +23,7 @@ const OpenEnded = ({ game }: Props) => {
   const [questionIndex, setQuestionIndex] = React.useState(0);
   const [hasEnded, setHasEnded] = React.useState<boolean>(false);
   const [now, setNow] = React.useState<Date>(new Date());
+  const [blankAnswers, setBlankAnswers] = React.useState<string>("");
   const { toast } = useToast();
 
   React.useEffect(() => {
@@ -39,6 +41,11 @@ const OpenEnded = ({ game }: Props) => {
 
   const { mutate: checkAnswer, isPending: isChecking } = useMutation({
     mutationFn: async () => {
+      let filledAnswers = blankAnswers;
+      document.querySelectorAll("#user-blank-input").forEach((input: any) => {
+        filledAnswers = filledAnswers.replace("_____", input.value);
+        input.value = filledAnswers;
+      });
       const payload: z.infer<typeof checkAnswerSchema> = {
         questionId: currentQuestion.id,
         userAnswer: "",
@@ -64,10 +71,21 @@ const OpenEnded = ({ game }: Props) => {
           setHasEnded(true);
           return;
         }
+        if (questionIndex === game.questions.length - 1) {
+          setHasEnded(true);
+          return;
+        }
         setQuestionIndex((prev) => prev + 1);
       },
     });
-  }, [checkAnswer, toast, isChecking, questionIndex, game.questions.length]);
+  }, [
+    checkAnswer,
+    toast,
+    isChecking,
+    questionIndex,
+    game.questions.length,
+    blankAnswers,
+  ]);
 
   React.useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -82,6 +100,24 @@ const OpenEnded = ({ game }: Props) => {
       document.removeEventListener("keydown", () => {});
     };
   }, [handleNext]);
+
+  if (hasEnded) {
+    return (
+      <div className="absolute flex flex-col justify-center top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 ">
+        <div className="px-4 mt-2 font-semibold text-white bg-green-500 rounded-md whitespace-nowrap">
+          Quiz Has been Completed!{" "}
+          {formatTimeDelta(differenceInSeconds(now, game.timeStart))}
+        </div>
+        <Link
+          href={`/statistics/${game.id}`}
+          className={cn(buttonVariants(), "mt-2")}
+        >
+          View Statistics
+          <BarChart className="w-4 h-4 ml-2" />
+        </Link>
+      </div>
+    );
+  }
 
   return (
     <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 md:w-[80vw] max-4-xl w-[90vw]">
@@ -119,7 +155,10 @@ const OpenEnded = ({ game }: Props) => {
       </Card>
 
       <div className="flex flex-col items-center justify-center w-full mt-4">
-        <BlankAnswerInput answer={currentQuestion.answer} />
+        <BlankAnswerInput
+          answer={currentQuestion.answer}
+          setBlankAnswer={setBlankAnswers}
+        />
         <Button
           className="mt-2"
           onClick={() => {
