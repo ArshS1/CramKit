@@ -1,4 +1,5 @@
 import AccuracyCard from "@/components/statistics/AccuracyCard";
+import QuestionList from "@/components/statistics/QuestionList";
 import ResultsCard from "@/components/statistics/ResultsCard";
 import TimeTakenCard from "@/components/statistics/TimeTakenCard";
 import { buttonVariants } from "@/components/ui/button";
@@ -7,6 +8,7 @@ import { getAuthSession } from "@/lib/nextauth";
 import { LucideLayoutDashboard } from "lucide-react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { totalmem } from "os";
 import React from "react";
 
 type Props = {
@@ -21,7 +23,32 @@ const StatisticsPage = async ({ params: { gameId } }: Props) => {
     return redirect("/");
   }
 
-  const game = await prisma.game.findUnique({ where: { id: gameId } });
+  const game = await prisma.game.findUnique({
+    where: { id: gameId },
+    include: { questions: true },
+  });
+
+  if (!game) {
+    return redirect("/quiz");
+  }
+
+  let accuracy: number = 0;
+  if (game.gameType === "multipleChoice") {
+    let toalCorrect = game.questions.reduce((acc, question) => {
+      if (question.isCorrect) {
+        return acc + 1;
+      }
+      return acc;
+    }, 0);
+    accuracy = (toalCorrect / game.questions.length) * 100;
+  } else if (game.gameType === "openEnded") {
+    let totalPercentage = game.questions.reduce((acc, question) => {
+      return acc + (question.percentageCorrect || 0);
+    }, 0);
+    accuracy = totalPercentage / game.questions.length;
+  }
+
+  accuracy = Math.round(accuracy * 100) / 100;
 
   return (
     <>
@@ -37,12 +64,12 @@ const StatisticsPage = async ({ params: { gameId } }: Props) => {
         </div>
 
         <div className="grid gap-4 mt-4 md:grid-cols-7">
-          <ResultsCard accuracy={80} />
-          <AccuracyCard accuracy={80} />
-          <TimeTakenCard timeEnded={new Date()} timeStarted={new Date()} />
+          <ResultsCard accuracy={accuracy} />
+          <AccuracyCard accuracy={accuracy} />
+          <TimeTakenCard timeEnded={new Date()} timeStarted={game.timeStart} />
         </div>
 
-        {/* question list */}
+        <QuestionList questions={game.questions} />
       </div>
     </>
   );
