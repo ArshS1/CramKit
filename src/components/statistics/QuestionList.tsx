@@ -9,6 +9,7 @@ import {
   TableHeader,
   TableRow,
 } from "../ui/table";
+import { cn } from "@/lib/utils";
 
 type Props = {
   questions: Question[];
@@ -33,15 +34,37 @@ const QuestionList = ({ questions }: Props) => {
 
       <TableBody>
         <>
-          {questions.map((question, index) => (
-            <TableRow key={question.id}>
-              <TableCell className="font-medium">{index + 1}</TableCell>
-              <TableCell>{question.question}</TableCell>
-              <br />
-              <br />
-              <span className="font-semibold">{question.answer}</span>
-            </TableRow>
-          ))}
+          {questions.map((question, index) => {
+            return (
+              <TableRow key={question.id}>
+                <TableCell className="font-medium">{index + 1}</TableCell>
+                <TableCell>
+                  {question.question}
+                  <br />
+                  <br />
+                  <span className="font-semibold">{question.answer}</span>
+                </TableCell>
+                {gameType === "multipleChoice" && (
+                  <TableCell
+                    className={cn({
+                      "text-green-600": question.isCorrect,
+                      "text-red-600": !question.isCorrect,
+                    })}
+                  >
+                    {question.userAnswer}
+                  </TableCell>
+                )}
+                {gameType === "openEnded" && (
+                  <TableCell>{question.userAnswer}</TableCell>
+                )}
+                {gameType === "openEnded" && (
+                  <TableCell className="text-right">
+                    {question.percentageCorrect}
+                  </TableCell>
+                )}
+              </TableRow>
+            );
+          })}
         </>
       </TableBody>
     </Table>
