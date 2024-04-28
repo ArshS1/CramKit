@@ -25,6 +25,7 @@ import { Separator } from "./ui/separator";
 import { useMutation } from "@tanstack/react-query";
 import axios from "axios";
 import { useRouter } from "next/navigation";
+import LoadingQuestions from "./LoadingQuestions";
 
 type Props = {};
 
@@ -32,6 +33,7 @@ type Input = z.infer<typeof quizSchema>;
 
 const QuizCreation = (props: Props) => {
   const router = useRouter();
+  const [showLoader, setShowLoader] = React.useState(false);
 
   const { mutate: getQuestions, isPending } = useMutation({
     mutationFn: async ({ amount, topic, type }: Input) => {
@@ -76,6 +78,10 @@ const QuizCreation = (props: Props) => {
   }
 
   form.watch();
+
+  if (showLoader) {
+    return <LoadingQuestions />
+  }
 
   return (
     <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
