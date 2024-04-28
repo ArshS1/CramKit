@@ -34,6 +34,7 @@ type Input = z.infer<typeof quizSchema>;
 const QuizCreation = (props: Props) => {
   const router = useRouter();
   const [showLoader, setShowLoader] = React.useState(false);
+  const [finished, setFinished] = React.useState(false);
 
   const { mutate: getQuestions, isPending } = useMutation({
     mutationFn: async ({ amount, topic, type }: Input) => {
@@ -57,6 +58,7 @@ const QuizCreation = (props: Props) => {
   });
 
   function onSubmit(input: Input) {
+    setShowLoader(true);
     // hit the endpoint for getting questions
     getQuestions(
       {
@@ -66,12 +68,18 @@ const QuizCreation = (props: Props) => {
       },
       {
         onSuccess: ({ gameId }) => {
-          // redirect to the game page
-          if (form.getValues("type") === "openEnded") {
-            router.push(`/play/open-ended/${gameId}`);
-          } else {
-            router.push(`/play/multipleChoice/${gameId}`);
-          }
+          setFinished(true);
+          setTimeout(() => {
+            // redirect to the game page
+            if (form.getValues("type") === "openEnded") {
+              router.push(`/play/open-ended/${gameId}`);
+            } else {
+              router.push(`/play/multipleChoice/${gameId}`);
+            }
+          }, 1000);
+        },
+        onError: () => {
+          setShowLoader(false);
         },
       }
     );
@@ -80,7 +88,7 @@ const QuizCreation = (props: Props) => {
   form.watch();
 
   if (showLoader) {
-    return <LoadingQuestions />
+    return <LoadingQuestions finished={finished} />;
   }
 
   return (
@@ -163,7 +171,9 @@ const QuizCreation = (props: Props) => {
                   Open Ended
                 </Button>
               </div>
-              <Button disabled={isPending} type="submit">Create Quiz</Button>
+              <Button disabled={isPending} type="submit">
+                Create Quiz
+              </Button>
             </form>
           </Form>
         </CardContent>
