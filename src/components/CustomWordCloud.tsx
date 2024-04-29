@@ -28,7 +28,7 @@ const CustomWordCloud = ({ formattedTopics }: Props) => {
         minSize={12}
         maxSize={35}
         tags={formattedTopics}
-        onClick={(tag) => router.push(`/quiz?topic=/${tag.value}`)
+        onClick={(tag) => router.push(`/quiz?topic=/${tag.value}`)}
         colorOptions={{
           luminosity: theme.theme === "dark" ? "dark" : "light",
           hue: theme.theme === "dark" ? "blue" : "green",
