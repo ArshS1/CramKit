@@ -1,35 +1,33 @@
+import { TagCloud } from "react-tagcloud";
+
 import { useTheme } from "next-themes";
 import React from "react";
-import D3WordCloud from "react-d3-cloud";
+import { prisma } from "@/lib/db";
 
-type Props = {};
+type Props = {
+  formattedTopics: { value: string; count: number }[];
+};
 
 const data = [
-    {
-        text:   "Talent",
-        value:  4,
-    }, 
-    {
-        text: "Innovation",
-        value: 3,
-    }
-]
+  { value: "JavaScript", count: 38 },
+  { value: "React", count: 30 },
+  { value: "Nodejs", count: 28 },
+  { value: "Express.js", count: 25 },
+  { value: "HTML5", count: 33 },
+  { value: "MongoDB", count: 18 },
+  { value: "CSS3", count: 20 },
+];
 
-const fontSizeMapper = (word: any) => Math.log2(word.value) * 5 + 16;
-
-const CustomWordCloud = (props: Props) => {
+const CustomWordCloud = ({ formattedTopics }: Props) => {
   const theme = useTheme();
 
   return (
     <>
-      <D3WordCloud
-        height={550}
-        data={data}
-        font="Times"
-        fontSize={fontSizeMapper}
-        rotate={0}
-        padding={10}
-        fill={theme.theme === "dark" ? "#ffffff" : "#000000"}
+      <TagCloud
+        minSize={12}
+        maxSize={35}
+        tags={data}
+        onClick={(tag) => alert(`'${tag.value}' was selected!`)}
       />
     </>
   );
