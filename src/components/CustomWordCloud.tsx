@@ -3,6 +3,7 @@ import { TagCloud } from "react-tagcloud";
 import { useTheme } from "next-themes";
 import React from "react";
 import { prisma } from "@/lib/db";
+import { useRouter } from "next/navigation";
 
 type Props = {
   formattedTopics: { value: string; count: number }[];
@@ -20,14 +21,18 @@ const data = [
 
 const CustomWordCloud = ({ formattedTopics }: Props) => {
   const theme = useTheme();
-
+  const router = useRouter();
   return (
     <>
       <TagCloud
         minSize={12}
         maxSize={35}
-        tags={data}
-        onClick={(tag) => alert(`'${tag.value}' was selected!`)}
+        tags={formattedTopics}
+        onClick={(tag) => router.push(`/quiz?topic=/${tag.value}`)
+        colorOptions={{
+          luminosity: theme.theme === "dark" ? "dark" : "light",
+          hue: theme.theme === "dark" ? "blue" : "green",
+        }}
       />
     </>
   );

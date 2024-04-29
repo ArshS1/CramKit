@@ -12,12 +12,7 @@ import React from "react";
 type Props = {};
 
 const HotTopicsCard = async (props: Props) => {
-  const topics = await prisma.topicCount.findMany({
-    take: 10,
-    orderBy: {
-      count: "desc",
-    },
-  });
+  const topics = await prisma.topicCount.findMany({});
 
   const formattedTopics = topics.map((topic) => {
     return {
@@ -33,7 +28,7 @@ const HotTopicsCard = async (props: Props) => {
         <CardDescription>View the most popular topics</CardDescription>
       </CardHeader>
       <CardContent className="pl-2">
-        <CustomWordCloud formattedTopics={formattedTopics}/>
+        <CustomWordCloud formattedTopics={formattedTopics} />
       </CardContent>
     </Card>
   );
