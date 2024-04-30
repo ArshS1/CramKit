@@ -1,8 +1,7 @@
-import { TagCloud } from "react-tagcloud";
+"use client";
 
-import { useTheme } from "next-themes";
+import { TagCloud } from "react-tagcloud";
 import React from "react";
-import { prisma } from "@/lib/db";
 import { useRouter } from "next/navigation";
 
 type Props = {
@@ -20,7 +19,6 @@ const data = [
 ];
 
 const CustomWordCloud = ({ formattedTopics }: Props) => {
-  const theme = useTheme();
   const router = useRouter();
   return (
     <>
@@ -29,10 +27,6 @@ const CustomWordCloud = ({ formattedTopics }: Props) => {
         maxSize={35}
         tags={formattedTopics}
         onClick={(tag) => router.push(`/quiz?topic=/${tag.value}`)}
-        colorOptions={{
-          luminosity: theme.theme === "dark" ? "dark" : "light",
-          hue: theme.theme === "dark" ? "blue" : "green",
-        }}
       />
     </>
   );

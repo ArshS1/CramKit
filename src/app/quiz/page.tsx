@@ -9,11 +9,6 @@ type Props = {
   };
 };
 
-export const metadata = {
-  title: "Quiz | CramKit",
-  description: "Quiz page",
-};
-
 const page = async ({ searchParams }: Props) => {
   const session = await getAuthSession();
 
